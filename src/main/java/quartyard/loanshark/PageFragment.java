@@ -26,49 +26,67 @@ import java.util.EnumMap;
  */
 public class PageFragment extends Fragment {
 
-	//Loan _loan;
+	Loan _loan;
+
+	CheckBox _chkPrincipal, _chkAPR, _chkPayment, _chkLength;
+	EditText _txtPrincipal, _txtAPR, _txtPayment, _txtLength, _txtNbPayments;
+	Spinner  _spnFreq, _spnLength;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		//_loan = new Loan();
+		_loan = new Loan();
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 				 ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		// The last two arguments ensure LayoutParams are inflated
-		// properly.
 		View rootView = inflater.inflate(R.layout.page, container, false);
-		((Spinner) rootView.findViewById(quartyard.loanshark.R.id.loan_len_spinner))
-			.setAdapter(new ArrayAdapter<TimeUnit>(this.getActivity(), 
-							       android.R.layout.simple_spinner_item, 
-							       TimeUnit.values()));
-		((Spinner) rootView.findViewById(quartyard.loanshark.R.id.freq_spinner))
-			.setAdapter(new ArrayAdapter<Frequency>(this.getActivity(), 
-							       android.R.layout.simple_spinner_item, 
-							       Frequency.values()));
-		((EditText) rootView.findViewById(quartyard.loanshark.R.id.nb_payments_textbox))
-		 	.setEnabled(false);
-		addCheckListeners(rootView);
-		addTextListeners(rootView);
+		//((Spinner) rootView.findViewById(quartyard.loanshark.R.id.loan_len_spinner))
+
+		_chkPrincipal = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.principal_checkbox);
+		_chkAPR = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.apr_checkbox);
+		_chkPayment = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.payment_amt_checkbox);
+		_chkLength = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.loan_length_checkbox);
+		_txtPrincipal = (EditText) rootView.findViewById(quartyard.loanshark.R.id.principal_textbox);
+		_txtAPR = (EditText) rootView.findViewById(quartyard.loanshark.R.id.apr_textbox);
+		_txtPayment = (EditText) rootView.findViewById(quartyard.loanshark.R.id.payment_amt_textbox);
+		_txtLength = (EditText) rootView.findViewById(quartyard.loanshark.R.id.loan_length_textbox);
+		_txtNbPayments = (EditText) rootView.findViewById(quartyard.loanshark.R.id.nb_payments_textbox);
+		_spnFreq = (Spinner) rootView.findViewById(quartyard.loanshark.R.id.freq_spinner);
+		_spnLength = (Spinner) rootView.findViewById(quartyard.loanshark.R.id.loan_len_spinner);
+
+		_spnLength.setAdapter(new ArrayAdapter<TimeUnit>(this.getActivity(), 
+								 android.R.layout.simple_spinner_item, 
+								 TimeUnit.values()));
+		_spnFreq .setAdapter(new ArrayAdapter<Frequency>(this.getActivity(), 
+							         android.R.layout.simple_spinner_item, 
+							         Frequency.values()));
+		_txtNbPayments.setEnabled(false);
+		addCheckListeners();
+		addUpateListeners();
+		refreshDisplay();
 		return rootView;
 	}
 
-	void addCheckListeners(View view) {
+	void refreshDisplay() {
+		
+	}
+
+	void addCheckListeners() {
 		final EnumMap<Value, CheckBox> cbs = new EnumMap(Value.class);
-		cbs.put(Value.principal, (CheckBox)view.findViewById(quartyard.loanshark.R.id.principal_checkbox));
-		cbs.put(Value.ari, (CheckBox)view.findViewById(quartyard.loanshark.R.id.apr_checkbox));
-		cbs.put(Value.payment, (CheckBox)view.findViewById(quartyard.loanshark.R.id.payment_amt_checkbox));
-		cbs.put(Value.length, (CheckBox)view.findViewById(quartyard.loanshark.R.id.loan_length_checkbox));
+		cbs.put(Value.principal, _chkPrincipal);
+		cbs.put(Value.ari, _chkAPR);
+		cbs.put(Value.payment, _chkPayment);
+		cbs.put(Value.length, _chkLength);
 		final EnumMap<Value, EditText> tbs = new EnumMap(Value.class);
-		tbs.put(Value.principal, (EditText)view.findViewById(quartyard.loanshark.R.id.principal_textbox));
-		tbs.put(Value.ari, (EditText)view.findViewById(quartyard.loanshark.R.id.apr_textbox));
-		tbs.put(Value.payment, (EditText)view.findViewById(quartyard.loanshark.R.id.payment_amt_textbox));
-		tbs.put(Value.length, (EditText)view.findViewById(quartyard.loanshark.R.id.loan_length_textbox));
+		tbs.put(Value.principal, _txtPrincipal);
+		tbs.put(Value.ari, _txtAPR);
+		tbs.put(Value.payment, _txtPayment);
+		tbs.put(Value.length, _txtLength);
 		final EnumMap<Value, Spinner>  spinners = new EnumMap(Value.class);
-		spinners.put(Value.length, (Spinner)view.findViewById(quartyard.loanshark.R.id.loan_len_spinner));
+		spinners.put(Value.length, _spnLength);
 
 		for(Value v : cbs.keySet()) {
 			final Value val = v;
@@ -103,7 +121,7 @@ public class PageFragment extends Fragment {
 		}
 	}
 
-	void addTextListeners(View view) {
+	void addUpateListeners() {
 
 	}
 }
