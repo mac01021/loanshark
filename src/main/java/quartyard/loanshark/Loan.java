@@ -6,95 +6,98 @@
 
 package quartyard.loanshark;
 
-import java.util.EnumSet;
-import java.util.EnumMap;
 
+import java.lang.Math;
 
 enum Value {
-    principal, apr, payment, length;
+	principal, ari, payment, length;
 }
 
 
 public class Loan {
-    //static final int VALCNT = 4;
-    
-    double _principal, _apr, _payment, _length;
-    Frequency _freq;
-    int _nbPayments;
-    
-    EnumSet<Value> _specified;
-    
-    public Loan(){
-        _specified = EnumSet.noneOf(Value.class);
-    }
-    
-    void freshen(Value v){
-        _specified.add(v);
-    }
-    
-    Value stalest(){
-        int min = Integer.MAX_VALUE;
-        Value mVal = Value.length;
-        for(Value v:_specified){
-            if (_staleness.get(v) < min) {
-                mVal = v;
-                min = _staleness.get(v);
-            }
-        }
-        return mVal;
-    }
-    
-    
-    void computePrincipal(){
-        _principal ++;
-    }
-    
-    void computePayment(){
-        _payment ++;
-    }
-    
-    void computeLength(){
-        _length ++;
-    }
-    
-    void compute(){
-        if (_specified.size() < Value.values().length - 1) {
-            return;
-        }
-        Value toCompute = stalest();
-        if (toCompute == Value.principal){
-            computePrincipal();
-        }
-        if (toCompute == Value.payment){
-            computePayment();
-        }
-        if (toCompute == Value.length){
-            computeLength();
-        }
-        this._nbPayments = (int)(this._length / this._freq._unit._nbDays);
-    }
-    
-    public void setPrincipal(double p){
-        _principal = p;
-        freshen(Value.principal);
-        compute();
-    }
-    
-    public void setPayment(double p){
-        _payment = p;
-        freshen(Value.principal);
-        compute();
-    }
-    
-    public void setLoanLength(double len){
-        _length = len;
-        freshen(Value.length);
-        compute();
-    }
-    
-    public void setFrequency(Frequency f){
-        _freq = f;
-        compute();
-    }
-    
+	
+	Value _toCompute;
+	double _principal, _foi, _payment, _length;
+	Frequency _freq;
+	int _nbPayments;
+	
+	public Loan(){
+	}
+
+	double gpp() {
+		//growth per period
+		// depends only on the force of interest
+		double periodLength = _freq._unit._nbDays;
+		double pforce = _foi * periodLength;
+		return Math.exp(pforce);
+	}
+	
+	void computePrincipal(){
+		//TODO
+	}
+	
+	void computePayment(){
+		//TODO
+	}
+	
+	void computeLength(){
+		double f = gpp();
+		double ppp = _principal / _payment;
+		double temp = 1 / (ppp * (1-f) + 1);
+		double logBaseF = Math.log(temp) / Math.log(f);
+		_nbPayments = (int) Math.ceil(logBaseF);
+		_length = _nbPayments * _freq._unit._nbDays;
+	}
+
+	void computeARI(){
+
+	}
+	
+	void compute(){
+		if (_toCompute == Value.principal){
+			computePrincipal();
+		}
+		if (_toCompute == Value.ari) {
+			computeARI();
+		}
+		if (_toCompute == Value.payment){
+			computePayment();
+		}
+		if (_toCompute == Value.length){
+			computeLength();
+		}
+	}
+
+	public void compute(Value v) {
+		_toCompute = v;
+	}
+	
+	public void setPrincipal(double p){
+		_principal = p;
+		compute();
+	}
+	
+	public void setARI(double ari){
+		//Calculate the force of interest from the given annual rate of
+		// interest
+		_foi = Math.log(ari) / TimeUnit.Years._nbDays;
+		compute();
+	}
+	
+	public void setPayment(double p){
+		_payment = p;
+		compute();
+	}
+	
+	public void setLoanLength(double len){
+		_length = len;
+		_nbPayments = (int) Math.ceil(len / _freq._unit._nbDays);
+		compute();
+	}
+	
+	public void setFrequency(Frequency f){
+		_freq = f;
+		compute();
+	}
+	
 }
