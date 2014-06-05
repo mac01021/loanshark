@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
 
@@ -48,6 +49,8 @@ public class PageFragment extends Fragment {
 			.setAdapter(new ArrayAdapter<Frequency>(this.getActivity(), 
 							       android.R.layout.simple_spinner_item, 
 							       Frequency.values()));
+		((EditText) rootView.findViewById(quartyard.loanshark.R.id.nb_payments_textbox))
+		 	.setEnabled(false);
 		addCheckListeners(rootView);
 		addTextListeners(rootView);
 		return rootView;
@@ -59,6 +62,13 @@ public class PageFragment extends Fragment {
 		cbs.put(Value.ari, (CheckBox)view.findViewById(quartyard.loanshark.R.id.apr_checkbox));
 		cbs.put(Value.payment, (CheckBox)view.findViewById(quartyard.loanshark.R.id.payment_amt_checkbox));
 		cbs.put(Value.length, (CheckBox)view.findViewById(quartyard.loanshark.R.id.loan_length_checkbox));
+		final EnumMap<Value, EditText> tbs = new EnumMap(Value.class);
+		tbs.put(Value.principal, (EditText)view.findViewById(quartyard.loanshark.R.id.principal_textbox));
+		tbs.put(Value.ari, (EditText)view.findViewById(quartyard.loanshark.R.id.apr_textbox));
+		tbs.put(Value.payment, (EditText)view.findViewById(quartyard.loanshark.R.id.payment_amt_textbox));
+		tbs.put(Value.length, (EditText)view.findViewById(quartyard.loanshark.R.id.loan_length_textbox));
+		final EnumMap<Value, Spinner>  spinners = new EnumMap(Value.class);
+		spinners.put(Value.length, (Spinner)view.findViewById(quartyard.loanshark.R.id.loan_len_spinner));
 
 		for(Value v : cbs.keySet()) {
 			final Value val = v;
@@ -72,8 +82,23 @@ public class PageFragment extends Fragment {
 							othr.setChecked(false);
 						}
 					}
+					for (Value v : tbs.keySet()) {
+						EditText tb = tbs.get(v);
+						if (v != val) {
+							tb.setEnabled(true);
+						} else {
+							tb.setEnabled(false);
+						}
+					}
+					for (Value v : spinners.keySet()) {
+						Spinner s = spinners.get(v);
+						if (v != val) {
+							s.setEnabled(true);
+						} else {
+							s.setEnabled(false);
+						}
+					}
 				}
-
 			});
 		}
 	}
