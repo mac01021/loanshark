@@ -22,4 +22,14 @@ real-world loan computations by actual lenders.
 The formulae used by The Little Loanshark may contain errors.
 
 
+Known Bugs and Missing Features
+-------------------------------
+
+I will address these eventually, most likely.
+
+- The rate of interest is not yet a valid target for computation.
+- The mortgage data you enter are not persisted. If you navigate away from a mortgage, there is no guarantee that it will be there when you come back.
+- The formulae may contain some sloppiness wherein the last payment is smaller than all the others and those others have the reported size.
+
+
 
