@@ -31,6 +31,9 @@ public class PageFragment extends Fragment {
 	CheckBox _chkPrincipal, _chkAPR, _chkPayment, _chkLength;
 	EditText _txtPrincipal, _txtAPR, _txtPayment, _txtLength, _txtNbPayments;
 	Spinner  _spnFreq, _spnLength;
+	final EnumMap<Value, CheckBox> _cbs = new EnumMap(Value.class);
+	final EnumMap<Value, EditText> _tbs = new EnumMap(Value.class);
+	final EnumMap<Value, Spinner>  _spinners = new EnumMap(Value.class);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -66,17 +69,18 @@ public class PageFragment extends Fragment {
 		addCheckListeners();
 		addUpateListeners();
 		refreshDisplay();
+		
 		return rootView;
 	}
 
 	void refreshDisplay() {
 		_txtPrincipal.setText(new Double(_loan.getPrincipal()).toString());
 		_txtAPR.setText(new Double(_loan.getARI() * 100).toString());
-		//_spnFreq.setSelection(3);
 		_spnFreq.setSelection(_loan.getFrequency().ordinal());
 		_txtPayment.setText(new Double(_loan.getPayment()).toString());
 		displayLength();
 		_txtNbPayments.setText(new Double(_loan.getNbPayments()).toString());
+		_cbs.get(_loan.getToCompute()).performClick();
 	}
 
 	void displayLength() {
@@ -97,41 +101,40 @@ public class PageFragment extends Fragment {
 	}
 
 	void addCheckListeners() {
-		final EnumMap<Value, CheckBox> cbs = new EnumMap(Value.class);
-		cbs.put(Value.principal, _chkPrincipal);
-		cbs.put(Value.ari, _chkAPR);
-		cbs.put(Value.payment, _chkPayment);
-		cbs.put(Value.length, _chkLength);
-		final EnumMap<Value, EditText> tbs = new EnumMap(Value.class);
-		tbs.put(Value.principal, _txtPrincipal);
-		tbs.put(Value.ari, _txtAPR);
-		tbs.put(Value.payment, _txtPayment);
-		tbs.put(Value.length, _txtLength);
-		final EnumMap<Value, Spinner>  spinners = new EnumMap(Value.class);
-		spinners.put(Value.length, _spnLength);
+		_cbs.put(Value.principal, _chkPrincipal);
+		_cbs.put(Value.ari, _chkAPR);
+		_cbs.put(Value.payment, _chkPayment);
+		_cbs.put(Value.length, _chkLength);
+		_tbs.put(Value.principal, _txtPrincipal);
+		_tbs.put(Value.ari, _txtAPR);
+		_tbs.put(Value.payment, _txtPayment);
+		_tbs.put(Value.length, _txtLength);
+		_spinners.put(Value.length, _spnLength);
 
-		for(Value v : cbs.keySet()) {
+		for(Value v : _cbs.keySet()) {
 			final Value val = v;
-			final CheckBox cb = cbs.get(val);
+			final CheckBox cb = _cbs.get(val);
 			cb.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View x) {
-					for (Value v :cbs.keySet()) {
+					cb.setEnabled(false);
+					for (Value v : _cbs.keySet()) {
 						if (v != val) {
-							CheckBox othr = cbs.get(v);
+							CheckBox othr = _cbs.get(v);
 							othr.setChecked(false);
+							othr.setEnabled(true);
 						}
 					}
-					for (Value v : tbs.keySet()) {
-						EditText tb = tbs.get(v);
+					for (Value v : _tbs.keySet()) {
+						EditText tb = _tbs.get(v);
 						if (v != val) {
 							tb.setEnabled(true);
 						} else {
 							tb.setEnabled(false);
 						}
 					}
-					for (Value v : spinners.keySet()) {
-						Spinner s = spinners.get(v);
+					for (Value v : _spinners.keySet()) {
+						Spinner s = _spinners.get(v);
 						if (v != val) {
 							s.setEnabled(true);
 						} else {

@@ -129,5 +129,9 @@ public class Loan {
 	public double getLength() {
 		return _length;
 	}
+
+	public Value getToCompute() {
+		return _toCompute;
+	}
 	
 }
