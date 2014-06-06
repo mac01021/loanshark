@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:hint="Principal"
 	    android:inputType="numberDecimal"
+	    android:digits="0123456789,."
             android:gravity="center" />
         
     </LinearLayout>
@@ -62,6 +63,7 @@
             android:layout_height="wrap_content"
             android:hint="APR"
 	    android:inputType="numberDecimal"
+	    android:digits="0123456789,."
             android:gravity="center" />
         
     </LinearLayout>
@@ -107,6 +109,7 @@
             android:layout_height="wrap_content"
             android:hint="Payment Amount"
 	    android:inputType="numberDecimal"
+	    android:digits="0123456789,."
             android:gravity="center" />
         
     </LinearLayout>
@@ -133,6 +136,7 @@
             android:layout_height="wrap_content"
             android:hint="Loan Length"
 	    android:inputType="numberDecimal"
+	    android:digits="0123456789,."
            android:gravity="center" />
         <Spinner
             android:id="@+id/loan_len_spinner"

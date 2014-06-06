@@ -16,8 +16,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 
+import java.text.DecimalFormat;
 import java.util.EnumMap;
 
 /**
@@ -35,6 +39,13 @@ public class PageFragment extends Fragment {
 	final EnumMap<Value, EditText> _tbs = new EnumMap(Value.class);
 	final EnumMap<Value, Spinner>  _spinners = new EnumMap(Value.class);
 
+	boolean _updating = false;
+
+	static DecimalFormat _numeral = new DecimalFormat();
+	static DecimalFormat _parse = new DecimalFormat();
+
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -46,6 +57,7 @@ public class PageFragment extends Fragment {
 				 ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.page, container, false);
+		_parse.setGroupingUsed(false);
 
 		_chkPrincipal = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.principal_checkbox);
 		_chkAPR = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.apr_checkbox);
@@ -66,6 +78,7 @@ public class PageFragment extends Fragment {
 							        android.R.layout.simple_spinner_item, 
 							        Frequency.values()));
 		_txtNbPayments.setEnabled(false);
+
 		addCheckListeners();
 		addUpateListeners();
 		refreshDisplay();
@@ -74,17 +87,20 @@ public class PageFragment extends Fragment {
 	}
 
 	void refreshDisplay() {
-		_txtPrincipal.setText(new Double(_loan.getPrincipal()).toString());
-		_txtAPR.setText(new Double(_loan.getARI() * 100).toString());
+		if (_updating) return;
+		_updating = true;
+		_txtPrincipal.setText(numeral(_loan.getPrincipal()));
+		_txtAPR.setText(numeral(_loan.getARI() * 100));
 		_spnFreq.setSelection(_loan.getFrequency().ordinal());
-		_txtPayment.setText(new Double(_loan.getPayment()).toString());
+		_txtPayment.setText(numeral(_loan.getPayment()));
 		displayLength();
-		_txtNbPayments.setText(new Double(_loan.getNbPayments()).toString());
+		_txtNbPayments.setText(numeral(_loan.getNbPayments()));
 		_cbs.get(_loan.getToCompute()).performClick();
+		_updating = false;
 	}
 
 	void displayLength() {
-		Double len = _loan.getLength();
+		double len = _loan.getLength();
 		if (len > 5 * TimeUnit.Years._nbDays) {
 			len /= TimeUnit.Years._nbDays;
 			_spnLength.setSelection(TimeUnit.Years.ordinal());
@@ -97,7 +113,21 @@ public class PageFragment extends Fragment {
 		} else {
 			_spnLength.setSelection(TimeUnit.Days.ordinal());
 		}
-		_txtLength.setText(len.toString());
+		_txtLength.setText(numeral(len));
+	}
+
+	String numeral(double n) {
+		return _numeral.format(n);
+	}
+
+	double parse(CharSequence e) {
+		try {
+			String s = e.toString();
+			s = s.replaceAll(",", "");
+			return _parse.parse(s.toString()).doubleValue();
+		} catch (Exception x) {
+			return 0;
+		}
 	}
 
 	void addCheckListeners() {
@@ -118,6 +148,7 @@ public class PageFragment extends Fragment {
 				@Override
 				public void onClick(View x) {
 					cb.setEnabled(false);
+					cb.setChecked(true);
 					for (Value v : _cbs.keySet()) {
 						if (v != val) {
 							CheckBox othr = _cbs.get(v);
@@ -147,7 +178,63 @@ public class PageFragment extends Fragment {
 	}
 
 	void addUpateListeners() {
-
+		_txtPrincipal.addTextChangedListener(new TextWatcher() {
+			public void afterTextChanged(Editable x) {
+				_loan.setPrincipal(parse(x));
+				int cursor = _txtPrincipal.getSelectionEnd();
+				refreshDisplay();
+				_txtPrincipal.setSelection(cursor);
+				//_loan.setPrincipal(parse(x));
+				//_txtPrincipal.setSelection(x.length());
+				//refreshDisplay();
+			}
+			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
+			public void onTextChanged(CharSequence s, int st, int before, int cnt) {}
+		});
+		_txtAPR.addTextChangedListener(new TextWatcher() {
+			public void afterTextChanged(Editable x) {
+				_loan.setARI(parse(x)/100);
+				//_txtAPR.setSelection(x.length());
+				refreshDisplay();
+			}
+			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
+			public void onTextChanged(CharSequence s, int st, int before, int cnt) {}
+		});
+		_txtPayment.addTextChangedListener(new TextWatcher() {
+			public void afterTextChanged(Editable x) {
+				_loan.setPayment(parse(x));
+				//_txtPayment.setSelection(x.length());
+				refreshDisplay();
+			}
+			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
+			public void onTextChanged(CharSequence s, int st, int before, int cnt) {}
+		});
+		_txtLength.addTextChangedListener(new TextWatcher() {
+			public void afterTextChanged(Editable x) {
+				TimeUnit unit = ((TimeUnit)_spnLength.getSelectedItem());
+				_loan.setLoanLength(parse(x) * unit._nbDays);
+				//_txtLength.setSelection(x.length());
+				refreshDisplay();
+			}
+			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
+			public void onTextChanged(CharSequence s, int st, int before, int cnt) {}
+		});
+		_spnFreq.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> v, View w, int x, long y) {
+				_loan.setFrequency((Frequency)_spnFreq.getSelectedItem());
+				refreshDisplay();
+			}
+			public void onNothingSelected(AdapterView<?> v) {}
+		});
+		_spnLength.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> v, View w, int x, long y) {
+				TimeUnit unit = ((TimeUnit)_spnLength.getSelectedItem());
+				double nb = parse(_txtLength.getText().toString());
+				_loan.setLoanLength(nb * unit._nbDays);
+				refreshDisplay();
+			}
+			public void onNothingSelected(AdapterView<?> v) {}
+		});
 	}
 }
 

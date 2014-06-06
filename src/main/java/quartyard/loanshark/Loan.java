@@ -8,6 +8,7 @@ package quartyard.loanshark;
 
 
 import java.lang.Math;
+import android.util.Log;
 
 enum Value {
 	principal, ari, payment, length;
@@ -23,7 +24,7 @@ public class Loan {
 	
 	public Loan(){
 		_principal = 185000;
-		_foi = Math.log(.02875) / TimeUnit.Years._nbDays;
+		_foi = Math.log(1.02875) / TimeUnit.Years._nbDays;
 		_payment = 1200;
 		_freq = Frequency.Monthly;
 		_toCompute = Value.length;
@@ -60,6 +61,7 @@ public class Loan {
 	}
 	
 	void compute(){
+		Log.d("LoanSharkLoan", "Computing!");
 		if (_toCompute == Value.principal){
 			computePrincipal();
 		}
@@ -86,7 +88,8 @@ public class Loan {
 	public void setARI(double ari){
 		//Calculate the force of interest from the given annual rate of
 		// interest
-		_foi = Math.log(ari) / TimeUnit.Years._nbDays;
+		double m = ari + 1;
+		_foi = Math.log(m) / TimeUnit.Years._nbDays;
 		compute();
 	}
 	
@@ -111,7 +114,7 @@ public class Loan {
 	}
 
 	public double getARI() {
-		return Math.exp(_foi * TimeUnit.Years._nbDays);
+		return Math.exp(_foi * TimeUnit.Years._nbDays) - 1;
 	}
 
 	public Frequency getFrequency() {
