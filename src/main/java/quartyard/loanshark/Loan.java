@@ -40,11 +40,15 @@ public class Loan {
 	}
 	
 	void computePrincipal(){
-		//TODO
+		double f = gpp();
+		double denom = 1 - f;
+		double num = (1 / Math.pow(f, _nbPayments) - 1) * _payment;
+		_principal = num / denom;
 	}
 	
 	void computePayment(){
-		//TODO
+		double f = gpp();
+		_payment = (_principal*(1-f)) / ((1/Math.pow(f, _nbPayments)) - 1);
 	}
 	
 	void computeLength(){
@@ -57,7 +61,9 @@ public class Loan {
 	}
 
 	void computeARI(){
-
+		int x = 0;
+		x /= x;
+		//TODO
 	}
 	
 	void compute(){

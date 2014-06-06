@@ -80,6 +80,9 @@ public class PageFragment extends Fragment {
 							        Frequency.values()));
 		_txtNbPayments.setEnabled(false);
 
+		//APR-AS-TARGET not yet implemented.  So disable the checkbox.
+		_chkAPR.setEnabled(false);
+
 		addCheckListeners();
 		addUpateListeners();
 		initDisplay();
@@ -171,6 +174,7 @@ public class PageFragment extends Fragment {
 				public void onClick(View x) {
 					cb.setEnabled(false);
 					cb.setChecked(true);
+					_loan.compute(val);
 					for (Value v : _cbs.keySet()) {
 						if (v != val) {
 							CheckBox othr = _cbs.get(v);
@@ -194,6 +198,9 @@ public class PageFragment extends Fragment {
 							s.setEnabled(false);
 						}
 					}
+
+					//APR-AS-TARGET not yet implemented.  So disable the checkbox.
+					_chkAPR.setEnabled(false); // !!!  TEMPORARY !!! //
 				}
 			});
 		}
