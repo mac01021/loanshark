@@ -57,6 +57,7 @@ public class PageFragment extends Fragment {
 				 ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.page, container, false);
+		_numeral.setGroupingUsed(false);
 		_parse.setGroupingUsed(false);
 
 		_chkPrincipal = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.principal_checkbox);
@@ -81,13 +82,34 @@ public class PageFragment extends Fragment {
 
 		addCheckListeners();
 		addUpateListeners();
-		refreshDisplay();
+		initDisplay();
 		
 		return rootView;
 	}
 
 	void refreshDisplay() {
 		if (_updating) return;
+		_updating = true;
+
+		Value target = _loan.getToCompute();
+		if (target == Value.principal) {
+			_txtPrincipal.setText(numeral(_loan.getPrincipal()));
+		}
+		if (target == Value.ari) {
+			_txtAPR.setText(numeral(_loan.getARI() * 100));
+		}
+		if (target == Value.payment) {
+			_txtPayment.setText(numeral(_loan.getPayment()));
+		}
+		if (target == Value.length) {
+			displayLength();
+		}
+		_txtNbPayments.setText(numeral(_loan.getNbPayments()));
+
+		_updating = false;
+	}
+
+	void initDisplay() {
 		_updating = true;
 		_txtPrincipal.setText(numeral(_loan.getPrincipal()));
 		_txtAPR.setText(numeral(_loan.getARI() * 100));
@@ -181,12 +203,7 @@ public class PageFragment extends Fragment {
 		_txtPrincipal.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable x) {
 				_loan.setPrincipal(parse(x));
-				int cursor = _txtPrincipal.getSelectionEnd();
 				refreshDisplay();
-				_txtPrincipal.setSelection(cursor);
-				//_loan.setPrincipal(parse(x));
-				//_txtPrincipal.setSelection(x.length());
-				//refreshDisplay();
 			}
 			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
 			public void onTextChanged(CharSequence s, int st, int before, int cnt) {}
@@ -194,7 +211,6 @@ public class PageFragment extends Fragment {
 		_txtAPR.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable x) {
 				_loan.setARI(parse(x)/100);
-				//_txtAPR.setSelection(x.length());
 				refreshDisplay();
 			}
 			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
@@ -203,7 +219,6 @@ public class PageFragment extends Fragment {
 		_txtPayment.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable x) {
 				_loan.setPayment(parse(x));
-				//_txtPayment.setSelection(x.length());
 				refreshDisplay();
 			}
 			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
@@ -213,7 +228,6 @@ public class PageFragment extends Fragment {
 			public void afterTextChanged(Editable x) {
 				TimeUnit unit = ((TimeUnit)_spnLength.getSelectedItem());
 				_loan.setLoanLength(parse(x) * unit._nbDays);
-				//_txtLength.setSelection(x.length());
 				refreshDisplay();
 			}
 			public void beforeTextChanged(CharSequence s, int st, int cnt, int after) {}
