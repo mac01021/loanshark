@@ -22,6 +22,12 @@ public class Loan {
 	int _nbPayments;
 	
 	public Loan(){
+		_principal = 185000;
+		_foi = Math.log(.02875) / TimeUnit.Years._nbDays;
+		_payment = 1200;
+		_freq = Frequency.Monthly;
+		_toCompute = Value.length;
+		compute();
 	}
 
 	double gpp() {
@@ -98,6 +104,30 @@ public class Loan {
 	public void setFrequency(Frequency f){
 		_freq = f;
 		compute();
+	}
+
+	public double getPrincipal() {
+		return _principal;
+	}
+
+	public double getARI() {
+		return Math.exp(_foi * TimeUnit.Years._nbDays);
+	}
+
+	public Frequency getFrequency() {
+		return _freq;
+	}
+
+	public double getPayment() {
+		return _payment;
+	}
+
+	public int getNbPayments() {
+		return _nbPayments;
+	}
+
+	public double getLength() {
+		return _length;
 	}
 	
 }

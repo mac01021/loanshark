@@ -43,7 +43,6 @@ public class PageFragment extends Fragment {
 				 ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.page, container, false);
-		//((Spinner) rootView.findViewById(quartyard.loanshark.R.id.loan_len_spinner))
 
 		_chkPrincipal = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.principal_checkbox);
 		_chkAPR = (CheckBox) rootView.findViewById(quartyard.loanshark.R.id.apr_checkbox);
@@ -60,9 +59,9 @@ public class PageFragment extends Fragment {
 		_spnLength.setAdapter(new ArrayAdapter<TimeUnit>(this.getActivity(), 
 								 android.R.layout.simple_spinner_item, 
 								 TimeUnit.values()));
-		_spnFreq .setAdapter(new ArrayAdapter<Frequency>(this.getActivity(), 
-							         android.R.layout.simple_spinner_item, 
-							         Frequency.values()));
+		_spnFreq.setAdapter(new ArrayAdapter<Frequency>(this.getActivity(), 
+							        android.R.layout.simple_spinner_item, 
+							        Frequency.values()));
 		_txtNbPayments.setEnabled(false);
 		addCheckListeners();
 		addUpateListeners();
@@ -71,7 +70,30 @@ public class PageFragment extends Fragment {
 	}
 
 	void refreshDisplay() {
-		
+		_txtPrincipal.setText(new Double(_loan.getPrincipal()).toString());
+		_txtAPR.setText(new Double(_loan.getARI() * 100).toString());
+		//_spnFreq.setSelection(3);
+		_spnFreq.setSelection(_loan.getFrequency().ordinal());
+		_txtPayment.setText(new Double(_loan.getPayment()).toString());
+		displayLength();
+		_txtNbPayments.setText(new Double(_loan.getNbPayments()).toString());
+	}
+
+	void displayLength() {
+		Double len = _loan.getLength();
+		if (len > 5 * TimeUnit.Years._nbDays) {
+			len /= TimeUnit.Years._nbDays;
+			_spnLength.setSelection(TimeUnit.Years.ordinal());
+		} else if (len > 2 * TimeUnit.Months._nbDays) {
+			len /= TimeUnit.Months._nbDays;
+			_spnLength.setSelection(TimeUnit.Months.ordinal());
+		} else if (len > 2 * TimeUnit.Weeks._nbDays) {
+			len /= TimeUnit.Weeks._nbDays;
+			_spnLength.setSelection(TimeUnit.Weeks.ordinal());
+		} else {
+			_spnLength.setSelection(TimeUnit.Days.ordinal());
+		}
+		_txtLength.setText(len.toString());
 	}
 
 	void addCheckListeners() {
