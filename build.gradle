@@ -20,5 +20,23 @@ version = "0.0.0"
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.3"
+
+    signingConfigs {
+        release {
+            Properties props = new Properties()
+	    props.load(project.rootProject.file('local.properties').newDataInputStream())
+
+            storeFile file(props.getProperty('key.storefile'))
+            storePassword props.getProperty('key.storepassword')
+            keyAlias props.getProperty('key.alias')
+            keyPassword props.getProperty('key.password')
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
 }
 
